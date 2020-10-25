@@ -1,14 +1,11 @@
 
 import React from 'react';
-import { StyleSheet, Text, View,Dimensions, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View,Dimensions,TouchableOpacity,StatusBar} from 'react-native';
 import Gradient from 'react-native-css-gradient';
 import {interpolate} from 'flubber';
 import Svg,{Path,G} from 'react-native-svg';
 import {AntDesign} from '@expo/vector-icons';
-
-
-
-
+import {animate,  easeInOut,} from 'popmotion';
 
 const types = ['upset', 'sad', 'neutral', 'smile', 'excited'];
 
@@ -40,25 +37,34 @@ export default class App extends React.Component {
     type:'neutral',
     index:-1,
   }
+  
   interpolatePaths=(type,index)=> {
+    const interpolator=interpolate(this.state.path, PATHS[type]);
+    animate({
+      from: {latest:0,background:this.state.background},
+      to: {latest:1,background:GRADIENTS[type]},
+      duration:200,
+      ease:easeInOut,
+      onUpdate:({latest,background})=>{this.setState({path:interpolator(latest),
+        index,
+        type,
+        background
+      })},
+    });
 
-    
-    this.setState({
-      type,
-      path:PATHS[type],
-      background:GRADIENTS[type],
-      index
-    }); 
-   
-    
-    
   }
-
 
 
   render(){
     return (
-    <Gradient gradient={this.state.background} style={{width,height,poition:'absolute',justifyContent:'center',alignItems:'center'}}>
+    <Gradient gradient={this.state.background} style={{width,height,}}>
+      <View style={{flex: 0.3,
+    justifyContent: "center"}}>
+      <Text style={styles.content}>Please let us know your thoughts...</Text>
+      </View>
+      <View style={{ flex: 0.6,
+      alignItems: "center",
+      justifyContent: "center"}}>
       <Svg width={width} height={height/3} viewBox="0 0 166 136">
         <G>
           <Path d={PATHS['left-eye']} fill='black'/>
@@ -74,7 +80,10 @@ export default class App extends React.Component {
         )
       )}
       </View>
-      
+      <TouchableOpacity style={styles.button}>
+        <Text style={{fontSize:20,fontWeight:'bold',color:'white'}}>Submit</Text>
+      </TouchableOpacity>
+      </View>
     </Gradient>
   );
 }
@@ -94,6 +103,21 @@ const styles = StyleSheet.create({
     borderRadius:30,
     backgroundColor:'rgba(0,0,0,0.05)',
     width:width*0.9,
+
   },
-  
+  content:{
+    color: "#fff",
+    fontSize: 42,
+    lineHeight: 42,
+    fontWeight: '700'
+    },
+    button:{
+      marginTop:30,
+      backgroundColor:'#B3B6B6B4',
+      padding:10,
+      borderRadius:30,
+      paddingLeft:25,
+      paddingRight:25,
+
+    }
 });
